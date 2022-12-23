@@ -1,45 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="false">
-	<property name="logPattern"
-		value="%d %-5level %logger [%thread] - %msg%n" />
-	<property name="logEncoding" value="UTF-8" />
-	<property name="logDirectory" value="\logs\" />
-	<property name="file_base_name" value="testingFile" />
-	<property name="archive" value="archive" />
-	<timestamp key="current_date" datePattern="yyyy-MM-dd" />
-	
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-       <encoder>
-          <pattern>${logPattern}</pattern>
-       </encoder>
-    </appender>
-	<appender name="fileAppender"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${logDirectory}/${file_base_name}.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>
-				${logDirectory}/${file_base_name}_%d{yyyy-MM-dd}.%i.log
-			</fileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>500MB</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
+<configuration>
+
+	<property name="HOME_LOG" value="/logs/app.log"/>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${HOME_LOG}</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>logs/archived/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- each archived file, size max 10MB -->
+			<maxFileSize>10MB</maxFileSize>
+			<!-- total size of all archive files, if total size > 20GB, it will delete old archived file -->
+			<totalSizeCap>20GB</totalSizeCap>
+			<!-- 60 days to keep -->
+			<maxHistory>60</maxHistory>
 		</rollingPolicy>
+
 		<encoder>
-			<charset>${logEncoding}</charset>
-			<pattern>${logPattern}</pattern>
+			<pattern>%d %p %c{1.} [%t] %m%n</pattern>
 		</encoder>
 	</appender>
-	
-	<logger name="com.zaxxer.hikari" level="debug" additivity="false">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-	<logger name="org.springframework.web" level="DEBUG" />
-	<logger name="nec.bacs" level="TRACE" />
-	<logger name="org.springframework.transaction" level="DEBUG" />
-	<logger name="org.springframework.orm.jpa" level="DEBUG" />
-	<root level="TRACE">
-		<appender-ref ref="fileAppender" />
-		<appender-ref ref="STDOUT" />
+
+	<root level="debug">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE-ROLLING" />
 	</root>
+
 </configuration>
